@@ -14,18 +14,20 @@ def main(args):
         sys.exit(1)
 
     workpath = os.path.expanduser('~')
-    libpath = os.path.expanduser('~/Library')
+    libs = ["-I", os.path.expanduser('~/Library'), "-I", os.path.expanduser('~/ac-library')]
 
     abspath = os.path.abspath(args[0])
     if abspath.startswith('/cygdrive/c/cygwin64/'):
         abspath = abspath[len('/cygdrive/c/cygwin64'):]
 
+    cmd = ["oj-bundle", str(pathlib.Path(abspath).relative_to(pathlib.Path(workpath)))] + libs
+
     if len(args) > 1:
         stdout = args[1]
         with open(args[1], "w") as out:
-            exit_stat = subprocess.call(["oj-bundle", str(pathlib.Path(abspath).relative_to(pathlib.Path(workpath))), "-I", libpath], cwd=workpath, stdout=out, stderr=subprocess.DEVNULL)
+            exit_stat = subprocess.call(cmd, cwd=workpath, stdout=out, stderr=subprocess.DEVNULL)
         logger.info(" {} -> {}".format(args[0], stdout))
     else:
-        exit_stat = subprocess.call(["oj-bundle", str(pathlib.Path(abspath).relative_to(pathlib.Path(workpath))), "-I", libpath], cwd=workpath, stdout=None, stderr=subprocess.DEVNULL)
+        exit_stat = subprocess.call(cmd, cwd=workpath, stdout=None, stderr=subprocess.DEVNULL)
 
     return exit_stat
